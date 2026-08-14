@@ -1,0 +1,11 @@
+# Hiplastics Malaysia
+
+> Malaysian supplier of ESL rails, shelf label holders, price tag holders and retail display accessories for supermarkets, pharmacies, convenience stores and retail chains.
+
+## Pages
+
+- [Home](/): Overview of products, industries served and how to request a quotation.
+- [Products](/products): Catalogue of ESL rails, shelf and price tag holders, display clips, retail signage and custom solutions.
+- [Industries](/industries): Retail segments served — supermarkets, pharmacies, convenience stores, electronics and department stores, retail chains.
+- [About](/about): Company background, mission, vision and what sets Hiplastics Malaysia apart.
+- [Contact](/contact): WhatsApp, email, phone, address, business hours and inquiry form for quotations.
