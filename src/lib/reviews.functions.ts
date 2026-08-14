@@ -161,6 +161,9 @@ export const updateReview = createServerFn({ method: "POST" })
     if (error) return { ok: false as const, error: error.message };
     return { ok: true as const };
   });
+
+/**
+ * Submits a new review for a product. Requires a signed-in user with a
  * completed order for this exact product (see canReviewProduct) — previously
  * this endpoint took a freeform name/email and accepted a review from
  * anyone, for anything. Still goes to a moderation queue (is_approved =
