@@ -249,26 +249,32 @@ const PAY_STATUSES = ["pending", "paid", "failed", "refunded"] as const;
  */
 function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label?: string }) {
   return (
-    <label className="flex cursor-pointer items-center gap-3 text-sm">
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        className={`relative h-6 w-11 shrink-0 rounded-full border transition-colors ${
-          checked ? "border-primary bg-primary" : "border-border bg-secondary"
-        }`}
-      >
-        <span
-          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-            checked ? "translate-x-[22px]" : "translate-x-0.5"
+    <label className="flex cursor-pointer flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+      <span className="flex shrink-0 items-center gap-2">
+        <button
+          type="button"
+          role="switch"
+          aria-checked={checked}
+          onClick={() => onChange(!checked)}
+          className={`relative h-6 w-11 shrink-0 rounded-full border transition-colors ${
+            checked ? "border-primary bg-primary" : "border-border bg-secondary"
           }`}
-        />
-      </button>
-      {label && <span className="min-w-0 flex-1 text-foreground">{label}</span>}
-      <span className={`shrink-0 text-[10px] font-bold uppercase tracking-wide ${checked ? "text-primary" : "text-muted-foreground"}`}>
-        {checked ? "On" : "Off"}
+        >
+          <span
+            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+              checked ? "translate-x-[22px]" : "translate-x-0.5"
+            }`}
+          />
+        </button>
+        {/* ON/OFF badge placed right next to the switch (not at the far end
+            of the row) so it can never get clipped off-screen on a narrow
+            phone — that clipping is what previously made two different
+            toggles look identically ambiguous. */}
+        <span className={`shrink-0 text-[10px] font-bold uppercase tracking-wide ${checked ? "text-primary" : "text-muted-foreground"}`}>
+          {checked ? "On" : "Off"}
+        </span>
       </span>
+      {label && <span className="min-w-0 flex-1 text-foreground">{label}</span>}
     </label>
   );
 }

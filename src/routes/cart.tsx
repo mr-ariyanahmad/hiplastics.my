@@ -129,6 +129,18 @@ function CartPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [linesKey, form.state, appliedCoupon]);
 
+  // Keep the selected payment method valid as the real settings load in —
+  // e.g. if online payment is off, don't leave "fpx" selected with no radio
+  // actually checked, and never let a disabled method stay selected.
+  useEffect(() => {
+    if (!q) return;
+    const codOk = q.settings.cod_enabled;
+    const onlineOk = q.settings.online_payment_enabled;
+    if (uiMethod === "cod" && !codOk) setUiMethod(onlineOk ? "fpx" : "cod");
+    else if (uiMethod !== "cod" && !onlineOk) setUiMethod(codOk ? "cod" : uiMethod);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [q?.settings.cod_enabled, q?.settings.online_payment_enabled]);
+
   async function onApplyCoupon() {
     const code = couponInput.trim();
     if (!code) return;
@@ -309,8 +321,15 @@ function CartPage() {
                 </div>
 
                 <h2 className="mt-6 text-lg font-bold text-foreground">{t("cart_payment_method")}</h2>
+                {!q && !err && (
+                  <p className="mt-3 text-sm text-muted-foreground">Loading available payment methods…</p>
+                )}
+                {err && (
+                  <p className="mt-3 rounded-md border border-destructive bg-destructive/10 p-3 text-sm text-destructive">{err}</p>
+                )}
+                {q && (
                 <div className="mt-3 space-y-2">
-                  {(q?.settings.cod_enabled ?? true) && (
+                  {q.settings.cod_enabled && (
                     <label className={`flex cursor-pointer items-center gap-3 rounded-md border p-3 ${uiMethod === "cod" ? "border-primary bg-primary/5" : "border-border"}`}>
                       <input type="radio" name="pm" checked={uiMethod === "cod"} onChange={() => setUiMethod("cod")} className="shrink-0" />
                       <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-border bg-white p-1.5">
@@ -322,7 +341,7 @@ function CartPage() {
                       </span>
                     </label>
                   )}
-                  {(q?.settings.online_payment_enabled ?? true) && (
+                  {q.settings.online_payment_enabled && (
                     <label className={`flex cursor-pointer items-center gap-3 rounded-md border p-3 ${uiMethod === "fpx" ? "border-primary bg-primary/5" : "border-border"}`}>
                       <input type="radio" name="pm" checked={uiMethod === "fpx"} onChange={() => setUiMethod("fpx")} className="shrink-0" />
                       <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-border bg-white p-1.5">
@@ -334,7 +353,7 @@ function CartPage() {
                       </span>
                     </label>
                   )}
-                  {(q?.settings.online_payment_enabled ?? true) && (
+                  {q.settings.online_payment_enabled && (
                     <label className={`flex cursor-pointer items-center gap-3 rounded-md border p-3 ${uiMethod === "qr" ? "border-primary bg-primary/5" : "border-border"}`}>
                       <input type="radio" name="pm" checked={uiMethod === "qr"} onChange={() => setUiMethod("qr")} className="shrink-0" />
                       <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-border bg-white p-1.5">
@@ -346,7 +365,13 @@ function CartPage() {
                       </span>
                     </label>
                   )}
+                  {!q.settings.cod_enabled && !q.settings.online_payment_enabled && (
+                    <p className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">
+                      No payment method is currently available. Please contact us to place this order.
+                    </p>
+                  )}
                 </div>
+                )}
                 {(uiMethod === "fpx" || uiMethod === "qr") && (
                   <p className="mt-2 flex items-start gap-1.5 text-xs text-muted-foreground">
                     <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
