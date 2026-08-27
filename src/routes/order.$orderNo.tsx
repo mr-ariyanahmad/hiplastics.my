@@ -9,8 +9,10 @@ import { money } from "@/lib/cart";
 import { site } from "@/lib/site";
 import { usePublicData } from "@/hooks/usePublicData";
 
+type OrderSearch = { t?: string; email?: string };
+
 export const Route = createFileRoute("/order/$orderNo")({
-  validateSearch: (s: Record<string, unknown>) => ({
+  validateSearch: (s: Record<string, unknown>): OrderSearch => ({
     t: typeof s.t === "string" ? s.t : undefined,
     email: typeof s.email === "string" ? s.email : undefined,
   }),

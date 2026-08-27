@@ -249,33 +249,31 @@ const PAY_STATUSES = ["pending", "paid", "failed", "refunded"] as const;
  */
 function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label?: string }) {
   return (
-    <label className="flex cursor-pointer flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-      <span className="flex shrink-0 items-center gap-2">
-        <button
-          type="button"
-          role="switch"
-          aria-checked={checked}
-          onClick={() => onChange(!checked)}
-          className={`relative h-6 w-11 shrink-0 rounded-full border transition-colors ${
-            checked ? "border-primary bg-primary" : "border-border bg-secondary"
+    <div className="flex min-w-0 items-start gap-3 text-sm">
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        aria-label={label ? `${label}: ${checked ? "On" : "Off"}` : checked ? "On" : "Off"}
+        onClick={() => onChange(!checked)}
+        className={`relative mt-0.5 flex h-6 w-11 shrink-0 items-center rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
+          checked ? "border-primary bg-primary" : "border-border bg-secondary"
+        }`}
+      >
+        <span
+          aria-hidden="true"
+          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+            checked ? "translate-x-[22px]" : "translate-x-0.5"
           }`}
-        >
-          <span
-            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-              checked ? "translate-x-[22px]" : "translate-x-0.5"
-            }`}
-          />
-        </button>
-        {/* ON/OFF badge placed right next to the switch (not at the far end
-            of the row) so it can never get clipped off-screen on a narrow
-            phone — that clipping is what previously made two different
-            toggles look identically ambiguous. */}
-        <span className={`shrink-0 text-[10px] font-bold uppercase tracking-wide ${checked ? "text-primary" : "text-muted-foreground"}`}>
+        />
+      </button>
+      <div className="min-w-0 flex-1 leading-5">
+        <div className={`text-[10px] font-bold uppercase tracking-wide ${checked ? "text-primary" : "text-muted-foreground"}`}>
           {checked ? "On" : "Off"}
-        </span>
-      </span>
-      {label && <span className="min-w-0 flex-1 text-foreground">{label}</span>}
-    </label>
+        </div>
+        {label && <div className="break-words text-foreground">{label}</div>}
+      </div>
+    </div>
   );
 }
 
@@ -427,6 +425,13 @@ function Dashboard({ session, onSignOut }: { session: Session; onSignOut: () => 
   const [busy, setBusy] = useState(false);
   const [importBusy, setImportBusy] = useState(false);
 
+  useEffect(() => {
+    if (!navOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previousOverflow; };
+  }, [navOpen]);
+
   async function refresh() {
     setBusy(true); setErr(null);
     try {
@@ -485,7 +490,10 @@ function Dashboard({ session, onSignOut }: { session: Session; onSignOut: () => 
   return (
     <div className="min-h-screen bg-surface lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-40 w-64 overflow-y-auto bg-[oklch(0.22_0.04_255)] text-white transition-transform lg:static lg:translate-x-0 ${navOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      <aside
+        aria-label="Admin navigation"
+        className={`fixed inset-y-0 left-0 z-40 w-64 overflow-y-auto bg-[oklch(0.22_0.04_255)] text-white shadow-elevated transition-transform duration-200 ease-out lg:static lg:translate-x-0 lg:shadow-none ${navOpen ? "translate-x-0" : "-translate-x-full"}`}
+      >
         <div className="flex h-14 items-center justify-between px-4">
           <span className="text-sm font-bold tracking-wide">Hiplastics Admin</span>
           <button className="lg:hidden" onClick={() => setNavOpen(false)} aria-label="Close menu"><X className="h-4 w-4" /></button>
@@ -507,11 +515,18 @@ function Dashboard({ session, onSignOut }: { session: Session; onSignOut: () => 
           ))}
         </nav>
       </aside>
-      {navOpen && <div className="fixed inset-0 z-30 bg-black/50 lg:hidden" onClick={() => setNavOpen(false)} />}
+      {navOpen && (
+        <button
+          type="button"
+          aria-label="Close admin navigation"
+          className="fixed inset-0 z-30 cursor-default bg-black/50 lg:hidden"
+          onClick={() => setNavOpen(false)}
+        />
+      )}
 
       {/* Main */}
       <div className="min-w-0">
-        <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-border bg-card px-4">
+        <header className="sticky top-0 z-20 flex h-14 min-w-0 items-center gap-3 border-b border-border bg-card px-4">
           <button className="lg:hidden" onClick={() => setNavOpen(true)} aria-label="Open menu"><Menu className="h-5 w-5" /></button>
           <h1 className="min-w-0 truncate text-sm font-bold text-foreground">{current?.label}</h1>
           <div className="ml-auto flex shrink-0 items-center gap-2 text-xs">
@@ -1323,16 +1338,22 @@ function ProductEditor({ row, categoryOptions, onClose, onSave, onUpload }: {
   const labelCls = "mb-1 block text-xs font-semibold text-foreground";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-0 sm:p-6" onClick={onClose}>
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="product-editor-title"
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-2 sm:items-center sm:p-6"
+      onClick={onClose}
+    >
       <form
         onSubmit={submit}
         onClick={(e) => e.stopPropagation()}
-        className="min-h-full w-full max-w-3xl bg-surface sm:min-h-0 sm:rounded-lg"
+        className="my-2 max-h-[calc(100dvh-1rem)] w-full max-w-3xl overflow-y-auto bg-surface sm:my-0 sm:max-h-[calc(100dvh-3rem)] sm:rounded-lg"
       >
         {/* Sticky header */}
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-card px-4 py-3 sm:rounded-t-lg">
           <div>
-            <h3 className="text-base font-bold text-foreground">{v.id ? "Edit product" : "Add new product"}</h3>
+            <h3 id="product-editor-title" className="text-base font-bold text-foreground">{v.id ? "Edit product" : "Add new product"}</h3>
             <p className="text-[11px] text-muted-foreground">Photos, basic info, sales info & shipping</p>
           </div>
           <div className="flex gap-2">
@@ -1480,9 +1501,15 @@ function EditDialog({ fields, row, categoryOptions, onClose, onSave, onUpload }:
     setBusy(false);
   }
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={onClose}>
-      <form onSubmit={submit} onClick={(e) => e.stopPropagation()} className="max-h-[90vh] w-full max-w-lg overflow-auto rounded-lg bg-card p-5 shadow-elevated">
-        <h3 className="text-base font-bold text-foreground">{v.id ? "Edit" : "New"} item</h3>
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="edit-dialog-title"
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-2 sm:items-center sm:p-4"
+      onClick={onClose}
+    >
+      <form onSubmit={submit} onClick={(e) => e.stopPropagation()} className="my-2 max-h-[calc(100dvh-1rem)] w-full max-w-lg overflow-y-auto rounded-lg bg-card p-4 shadow-elevated sm:my-0 sm:max-h-[90vh] sm:p-5">
+        <h3 id="edit-dialog-title" className="text-base font-bold text-foreground">{v.id ? "Edit" : "New"} item</h3>
         <div className="mt-4 space-y-3">
           {fields.map((f) => {
             const opts = f.key === "category" ? categoryOptions : f.options;
@@ -1523,7 +1550,7 @@ function FieldInput({ field, value, onChange, onUpload }: {
             type="date"
             value={dateVal}
             onChange={(e) => onChange(e.target.value || null)}
-            className={cls}
+            className={`${cls} min-w-0 flex-1`}
           />
           {dateVal && (
             <button type="button" onClick={() => onChange(null)} className="shrink-0 rounded-md border border-border px-2.5 py-2 text-xs font-semibold text-muted-foreground hover:bg-secondary">
@@ -1554,7 +1581,7 @@ function FieldInput({ field, value, onChange, onUpload }: {
             value={v}
             onChange={(e) => onChange(e.target.value)}
             placeholder="#1d4ed8"
-            className={cls}
+            className={`${cls} min-w-0`}
           />
         </div>
       </div>
@@ -1673,8 +1700,8 @@ function FieldInput({ field, value, onChange, onUpload }: {
         </p>
         <div className="space-y-2">
           {rows.map((r, idx) => (
-            <div key={idx} className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">Buy</span>
+            <div key={idx} className="flex min-w-0 flex-wrap items-center gap-2">
+              <span className="shrink-0 text-xs text-muted-foreground">Buy</span>
               <input
                 type="number"
                 min={2}
@@ -1682,7 +1709,7 @@ function FieldInput({ field, value, onChange, onUpload }: {
                 onChange={(e) => setRow(idx, { min_qty: Math.max(2, Number(e.target.value) || 2) })}
                 className="w-20 rounded-md border border-input bg-background px-2 py-1.5 text-sm"
               />
-              <span className="text-xs text-muted-foreground">+ units, price becomes</span>
+              <span className="min-w-0 text-xs text-muted-foreground">+ units, price becomes</span>
               <input
                 type="number"
                 min={0}
@@ -1691,7 +1718,7 @@ function FieldInput({ field, value, onChange, onUpload }: {
                 onChange={(e) => setRow(idx, { price: Math.max(0, Number(e.target.value) || 0) })}
                 className="w-24 rounded-md border border-input bg-background px-2 py-1.5 text-sm"
               />
-              <span className="text-xs text-muted-foreground">MYR each</span>
+              <span className="shrink-0 text-xs text-muted-foreground">MYR each</span>
               <button type="button" onClick={() => removeRow(idx)} className="ml-auto shrink-0 rounded-md p-1.5 text-destructive hover:bg-destructive/10" aria-label="Remove tier">
                 <Trash2 className="h-3.5 w-3.5" />
               </button>

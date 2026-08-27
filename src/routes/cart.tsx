@@ -206,7 +206,7 @@ function CartPage() {
   const currency = q?.settings.currency ?? "MYR";
 
   return (
-    <SiteLayout>
+    <SiteLayout showContact={false}>
       <section className="border-b border-border bg-surface">
         <div className="container-page py-8">
           <h1 className="flex items-center gap-2 text-2xl font-bold text-foreground sm:text-3xl">
@@ -226,10 +226,10 @@ function CartPage() {
           </div>
         </section>
       ) : (
-        <section className="section-pad">
-          <div className="container-page grid gap-8 lg:grid-cols-[1fr_380px]">
+        <section className="section-pad pb-16">
+          <div className="container-page grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
             {/* Left: items + form */}
-            <div>
+            <div className="min-w-0">
               {stockNotice && (
                 <div className="mb-4 flex items-start gap-2 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">
                   <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" /> <span className="min-w-0">{stockNotice}</span>
@@ -383,29 +383,29 @@ function CartPage() {
             </div>
 
             {/* Right: summary */}
-            <aside className="h-fit rounded-lg border border-border bg-card p-5 lg:sticky lg:top-24">
+            <aside className="h-fit min-w-0 rounded-lg border border-border bg-card p-5 lg:sticky lg:top-24">
               <h2 className="text-base font-bold text-foreground">{t("cart_order_summary")}</h2>
 
               <div className="mt-4">
                 {appliedCoupon ? (
                   <div className="flex items-center justify-between rounded-md border border-primary/40 bg-primary/5 px-3 py-2 text-sm">
-                    <span className="font-semibold text-primary">Coupon: {appliedCoupon}</span>
+                    <span className="min-w-0 break-all font-semibold text-primary">Coupon: {appliedCoupon}</span>
                     <button type="button" onClick={removeCoupon} className="text-xs font-semibold text-muted-foreground underline hover:text-foreground">{t("cart_coupon_remove")}</button>
                   </div>
                 ) : (
-                  <div className="flex gap-2">
+                  <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] gap-2">
                     <input
                       placeholder={t("cart_coupon_placeholder")}
                       value={couponInput}
                       onChange={(e) => setCouponInput(e.target.value)}
                       onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); onApplyCoupon(); } }}
-                      className={`${inputCls} flex-1`}
+                      className={`${inputCls} min-w-0`}
                     />
                     <button
                       type="button"
                       onClick={onApplyCoupon}
                       disabled={couponBusy || !couponInput.trim()}
-                      className="shrink-0 rounded-md border border-border px-3 py-2 text-sm font-semibold text-foreground hover:bg-secondary disabled:opacity-50"
+                      className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-md border border-border px-3 py-2 text-sm font-semibold text-foreground hover:bg-secondary disabled:opacity-50"
                     >
                       {couponBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : t("cart_apply")}
                     </button>

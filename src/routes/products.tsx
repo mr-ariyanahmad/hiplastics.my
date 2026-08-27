@@ -5,8 +5,10 @@ import { ProductCard } from "@/components/ProductCard";
 import { site } from "@/lib/site";
 import { usePublicData } from "@/hooks/usePublicData";
 
+type ProductsSearch = { q?: string };
+
 export const Route = createFileRoute("/products")({
-  validateSearch: (s: Record<string, unknown>) => ({
+  validateSearch: (s: Record<string, unknown>): ProductsSearch => ({
     q: typeof s.q === "string" ? s.q : undefined,
   }),
   head: () => {

@@ -6,7 +6,7 @@ const BASE_URL = "https://hiplastics.my";
 
 interface SitemapEntry {
   path: string;
-  changefreq?: "weekly" | "monthly";
+  changefreq?: "weekly" | "monthly" | "yearly";
   priority?: string;
 }
 
