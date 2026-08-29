@@ -129,8 +129,10 @@ async function requireAdmin(accessToken: string) {
 
 export const fetchAllPublicData = createServerFn({ method: "GET" }).handler(async () => {
   try {
-    const { getAdminClient } = await import("@/integrations/hiplastics/admin.server");
-    const admin = getAdminClient();
+    // Public content is protected by anon RLS read policies; it must not depend
+    // on the optional service-role environment used by admin/shop operations.
+    const { getPublicClient } = await import("@/integrations/hiplastics/public.server");
+    const admin = getPublicClient();
     const [settings, products, categories, industries, gallery, downloads, news, reviewRatings] = await Promise.all([
       admin.from("site_settings").select("*").eq("id", 1).maybeSingle(),
       admin.from("products").select("*").eq("is_active", true).order("sort_order"),

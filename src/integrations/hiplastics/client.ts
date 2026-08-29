@@ -12,6 +12,9 @@ import { createClient } from "@supabase/supabase-js";
 const url = import.meta.env.VITE_HIPLASTICS_SUPABASE_URL as string | undefined;
 const anonKey = import.meta.env.VITE_HIPLASTICS_SUPABASE_ANON_KEY as string | undefined;
 
+/** Public read/auth configuration is safe to use in the browser. */
+export const isPublicSupabaseConfigured = Boolean(url && anonKey);
+
 if (!url || !anonKey) {
   // Don't throw at import time (breaks SSR build) — surface a clear runtime error instead.
   // eslint-disable-next-line no-console
